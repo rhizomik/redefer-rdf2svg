@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app version="2.4" xmlns="http://java.sun.com/xml/ns/j2ee"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee 
+    					http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
+ <servlet>
+  <servlet-name>RenderRDF</servlet-name>
+  <servlet-class>net.rhizomik.redefer.rdf2svg.RenderRDF</servlet-class>
+  <init-param>
+   <param-name>dotPath</param-name>
+   <param-value>/usr/local/bin/dot</param-value>
+   <!-- C:\\Programs\\GraphViz\\bin\\dot.exe -->
+  </init-param>
+  <init-param>
+   <param-name>maxlength</param-name>
+   <param-value>250000</param-value>
+  </init-param>
+ </servlet>
+ <servlet-mapping>
+  <servlet-name>RenderRDF</servlet-name>
+  <url-pattern>/render</url-pattern>
+ </servlet-mapping>
+</web-app>

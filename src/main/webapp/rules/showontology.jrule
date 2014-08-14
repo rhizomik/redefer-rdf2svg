@@ -1,0 +1,79 @@
+@prefix gv: <http://rhizomik.net/ontologies/2008/05/gv.rdfs#>.
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>.
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>.
+@prefix owl: <http://www.w3.org/2002/07/owl#>.
+@prefix dc: <http://purl.org/dc/elements/1.1/>.
+@prefix dct: <http://purl.org/dc/terms/>.
+
+[init:
+->
+  (gv:graph rdf:type gv:Graph), (gv:graph gv:rankdir "LR"), (gv:graph gv:nodesep ".03"),
+  (gv:graph gv:ranksep ".03"), (gv:graph gv:center "true"),
+  (gv:graph gv:overlap "false"), (gv:graph gv:splines "true"),
+  (gv:graph gv:hasEdgeProperty gv:someSource),
+  (gv:superClassOf rdf:type gv:EdgeProperty), (gv:superClassOf gv:dir "back"), (gv:superClassOf gv:color "blue"), 
+  (gv:superClassOf gv:arrowtail "empty"), (gv:superClassOf rdfs:label ""), (gv:superClassOf gv:fontsize "10px")
+]
+
+[ontologyLabel:
+  (?ontology rdf:type owl:Ontology), (?ontology dc:title ?title),
+  strConcat(?title, " classes hierarchy", ?titlec)
+->
+  (gv:graph gv:label ?titlec)
+]
+
+[subClassRelation:
+  (?class1 rdfs:subClassOf ?class2)
+-> 
+  (?class2 gv:superClassOf ?class1) 
+]
+
+[EquivalentClass:
+  (?class1 rdfs:subClassOf ?class2), isBNode(?class2), (?class2 owl:intersectionOf ?list)
+->
+  listMapAsObject(?class1, rdfs:subClassOf, ?list)
+]
+
+[SomeValuesRestriction:
+  (?class1 rdfs:subClassOf ?restr), 
+  (?restr owl:onProperty ?property), (?restr owl:someValuesFrom ?class2), uriConcat(?property, "_some", ?restrProp)
+-> 
+  (?class1 ?restrProp ?class2),
+  (gv:graph gv:hasEdgeProperty ?restrProp),
+  (?restrProp rdf:type gv:EdgeProperty),
+  (?restrProp gv:fontsize "10px"), (?restrProp gv:style "dashed")
+]
+
+[AllValuesRestriction:
+  (?class1 rdfs:subClassOf ?restr), 
+  (?restr owl:onProperty ?property), (?restr owl:allValuesFrom ?class2), uriConcat(?property, "_only", ?restrProp)
+-> 
+  (?class1 ?restrProp ?class2),
+  (gv:graph gv:hasEdgeProperty ?restrProp),
+  (?restrProp rdf:type gv:EdgeProperty),
+  (?restrProp gv:fontsize "10px"), (?restrProp gv:style "dashed")
+]
+
+[CardinalityRestriction:
+  (?class1 rdfs:subClassOf ?restr), 
+  (?restr owl:onProperty ?property), (?restr owl:cardinality ?card), uriConcat(?property, "_exactly", ?restrProp)
+-> 
+  (?class1 ?restrProp ?card),
+  (gv:graph gv:hasEdgeProperty ?restrProp),
+  (?restrProp rdf:type gv:EdgeProperty),
+  (?restrProp gv:fontsize "10px"), (?restrProp gv:style "dashed")
+]
+
+[OWLClass:
+  (?class rdf:type owl:Class), notBNode(?class), strConcat(?class, ?classUri)
+->
+  (?class gv:label ?classUri), (?class gv:fontsize "10px"), (?class gv:height ".001"),
+  (?class gv:shape "box"), (?class gv:width ".001"), (?class gv:color "black"), (gv:graph gv:hasNode ?class)
+]
+
+[RDFSClass:
+  (?class rdf:type rdfs:Class), notBNode(?class), strConcat(?class, ?classUri)
+->
+  (?class gv:label ?classUri), (?class gv:fontsize "10px"), (?class gv:height ".001"),
+  (?class gv:shape "box"), (?class gv:width ".001"), (?class gv:color "black"), (gv:graph gv:hasNode ?class)
+]
