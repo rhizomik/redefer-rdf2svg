@@ -1,0 +1,125 @@
+a {
+    text-decoration: none;
+}
+a, h1, h2, h3, h4, h5 {
+    color:#50408E;
+}
+p {
+    text-align: justify;
+}
+body {
+    font-size: 11px;
+    font-family: "Lucida Sans Unicode";
+}
+#logo {
+}
+td {
+    font-size: 11px;
+    font-family: "Lucida Sans Unicode";
+}
+img {
+    border: 0px;
+}
+#header {
+    margin-top: 10px;
+    float: right;
+}
+#header #overview {
+    float: right;
+    clear: none;
+    font-size: 10px;
+    margin-top: 10px;
+    margin-right: 10px;
+}
+#header #login {
+    float: right;
+    clear: none;
+    font-weight: bold;
+    font-size: 10px;
+    margin-top: 10px;
+    margin-right: 10px;
+}
+#header #login #username
+{
+    float: left;
+    font-weight: bold;
+}
+#header #menu-class, #header #menu-skos {
+    float: right;
+    clear: both;
+    font-size: 13px;
+    margin-top: 20px;
+    font-weight: bold;
+    z-index:1000;
+}
+#header #menu-skos {
+    display: none;
+}
+#body {
+    margin-top: 10px;
+    float: left;
+    width: 100%;
+    overflow: hidden;
+}
+#left {
+    float: left;
+    padding: 10px;
+    width: 250px;
+    /*margin-top:50px;*/
+}
+#metadata {
+    margin-top: 0px;
+    border-width: 1px;
+    border-style: dashed;
+    border-color: #CCCCCC;
+    padding: 10px;
+    background-color: #F0F0F0;
+}
+#metadata p {
+    margin: 0px;
+}
+#metadatafoot {
+    text-align: center;
+    padding: 10px;
+}
+#content {
+    margin-right: 10px;
+    margin-left: 275px;
+}
+#content a {
+    text-decoration: underline;
+}
+#content a:visited {
+    color:#80708E;
+}
+#content .yui-content {
+    border-color: #CCCCCC;
+    background-color: #F0F0F0;
+}
+#content .yui-nav .selected a em {
+    color:white;
+}
+#content .yui-nav a {
+    text-decoration: none;
+}
+#content #wikiactions a {
+    text-decoration: none;
+}
+#content #wikiactions {
+    text-align: right;
+    font-size: 11px;
+}
+#content p {
+    margin-bottom: 4px;
+    text-align: justify;
+}
+#wikifootlogo a {
+    text-decoration: none;
+}
+#wikifootlogo {
+    position: relative;
+    left: 50%;
+    width: 150px;
+    margin-left: -75px;
+    margin-top: 20px;
+}

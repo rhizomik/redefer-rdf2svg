@@ -1,7 +1,11 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <html>
-<head><title>RDF2SVG - RDF to SVG Renderer</title></head>
+<head>
+    <title>RDF2SVG - RDF to SVG Renderer</title>
+    <link href="style/rhizomik.css" type="text/css" rel="stylesheet" />
+</head>
 <body>
+<div id="logo"><a href="http://rhizomik.net"><img src="images/rhizomik-eye-100px.png"/></a></div>
 <h1>RDF2SVG - RDF to SVG Renderer</h1>
 <form method="post" action="render" name="render" target="_blank" accept-charset="UTF-8">
     <p>Input RDF or URI pointing to RDF content:</p>
@@ -134,7 +138,7 @@
 </ul>
 <p>Examples using GET:</p>
 <ul>
-<li><p>Show a RDF graph: <br><a href="<%=request.getRequestURL()%>render?rdf=http://bnb.data.bl.uk/id/resource/010758360&format=RDF/XML&mode=svg&rules=<%=request.getRequestURL()%>rules/showgraph.jrule" target="_blank"><b><%=request.getRequestURL()%>render</b>?<b>rdf</b>=http://bnb.data.bl.uk/id/resource/010758360&amp;<b>format</b>=RDF/XML&amp;<b>mode</b>=svg&amp;<b>rules</b>=<%=request.getRequestURL()%>rules/showgraph.jrule</a></p></li>
+<li><p>Show a RDF graph: <br><a href="<%=request.getRequestURL()%>render?rdf=http://rhizomik.net/html/ontologies/mpeg7ontos/examples/descriptionExample002.rdf&format=RDF/XML&mode=svg&rules=<%=request.getRequestURL()%>rules/showgraph.jrule" target="_blank"><b><%=request.getRequestURL()%>render</b>?<b>rdf</b>=http://bnb.data.bl.uk/id/resource/010758360&amp;<b>format</b>=RDF/XML&amp;<b>mode</b>=svg&amp;<b>rules</b>=<%=request.getRequestURL()%>rules/showgraph.jrule</a></p></li>
 <li><p>Show the class hierarcy in an ontology: <br><a href="<%=request.getRequestURL()%>render?rdf=https://raw.github.com/structureddynamics/Bibliographic-Ontology-BIBO/1.3/bibo.xml.owl&format=RDF/XML&mode=svg&rules=<%=request.getRequestURL()%>rules/showclasshierarchy.jrule" target="_blank"><b><%=request.getRequestURL()%>render</b>?<b>rdf</b>=http://purl.org/ontology/bibo/&amp;<b>format</b>=RDF/XML&amp;<b>mode</b>=svg&amp;<b>rules</b>=<%=request.getRequestURL()%>rules/showclasshierarchy.jrule</a></p></li>
 <li><p>Show ontology: <br><a href="<%=request.getRequestURL()%>render?rdf=http://rhizomik.net/ontologies/copyrightonto.owl&format=RDF/XML&mode=svg&rules=<%=request.getRequestURL()%>rules/showontology.jrule" target="_blank"><b><%=request.getRequestURL()%>render</b>?<b>rdf</b>=http://rhizomik.net/ontologies/copyrightonto.owl&amp;<b>format</b>=RDF/XML&amp;<b>mode</b>=svg&amp;<b>rules</b>=<%=request.getRequestURL()%>rules/showontology.jrule</a></p></li>
 </ul></body></html>
