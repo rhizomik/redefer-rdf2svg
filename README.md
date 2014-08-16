@@ -21,7 +21,7 @@ To build the deployment **WAR** file using the source code and **Maven**:
 
     mvn clean package
     
-A **prebuild WAR** file is available from: http://rhizomik.net/html/redefer/rdf2svg.war
+A **prebuilt WAR** file is available from: http://rhizomik.net/html/redefer/rdf2svg.war
 
 **RDF2SVG** requires that **Graphviz** is installed in the machine it is deployed in. **Graphviz** can be downloaded 
 from http://www.graphviz.org. Once installed, **configure** RDF2SVG so it can find it. In the 

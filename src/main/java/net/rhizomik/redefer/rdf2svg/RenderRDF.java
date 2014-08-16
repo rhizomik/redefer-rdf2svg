@@ -48,17 +48,23 @@ import com.hp.hpl.jena.util.FileUtils;
  */
 public class RenderRDF extends HttpServlet 
 {
-	static int defaultLineLength = 50;
-	static int defaultMaxLineLength = 80;
-	private int MAX_INPUT_SIZE = 25000;
+	static String defaultLineLength = "50";
+	static String defaultMaxLineLength = "80";
+	private String MAX_INPUT_SIZE = "25000";
+
+	private String dotPath;
+
+    private String rdf;
+    private String rules;
+    private String format;
+    private String mode;
 	private String language;
 	private String namespaces;
-	
-	private String dotPath = null;
-	/**
-	 * Constructor of the object.
-	 */
-	public RenderRDF() 
+    private int maxSize;
+    private int lineLength;
+    private int maxLineLength;
+
+    public RenderRDF()
 	{
 		super();
 		BuiltinRegistry.theRegistry.register(new StrContains());
@@ -72,7 +78,7 @@ public class RenderRDF extends HttpServlet
         		  config.getInitParameter("dotPath"):
         		  "C:\\Programs\\GraphViz\\bin\\dot.exe";
         if (config.getInitParameter("maxlength") != null)
-        	MAX_INPUT_SIZE = Integer.parseInt(config.getInitParameter("maxlength"));
+        	MAX_INPUT_SIZE = config.getInitParameter("maxlength");
         //System.setProperty("javax.xml.transform.TransformerFactory", "net.sf.saxon.TransformerFactoryImpl");
 	}
 
@@ -81,16 +87,12 @@ public class RenderRDF extends HttpServlet
 	}
 
     public void doGet(HttpServletRequest request, HttpServletResponse response)
-    	throws javax.servlet.ServletException, java.io.IOException
-    {
-
+    	throws javax.servlet.ServletException, java.io.IOException {
         performTask(request, response);
     }
 
     public void doPost(HttpServletRequest request, HttpServletResponse response)
-        throws javax.servlet.ServletException, java.io.IOException
-    {
-
+        throws javax.servlet.ServletException, java.io.IOException {
         performTask(request, response);
     }
 
@@ -98,57 +100,27 @@ public class RenderRDF extends HttpServlet
 		throws javax.servlet.ServletException, IOException
 	{
 		request.setCharacterEncoding("UTF-8");
-		String rdf = (String) request.getSession().getAttribute("rdf");
-		if (rdf == null)
-		    rdf = (String) request.getParameter("rdf");
-		String rules = (String) request.getSession().getAttribute("rules");
-		if (rules == null)
-		    rules = (String) request.getParameter("rules");
-		String format = (String) request.getSession().getAttribute("format");
-		if (format == null)
-		    format = (String) request.getParameter("format");
-		String mode = (String) request.getSession().getAttribute("mode");
-		if (mode == null)
-			mode = (String) request.getParameter("mode");
+        String appBase = request.getRequestURL().
+                substring(0, request.getRequestURL().lastIndexOf("/"));
+
+        rdf = getInput(request, "rdf");
+		rules = getInput(request, "rules", appBase+"/rules/showgraph.jrule");
+		format = getInput(request, "format");
+		mode = getInput(request, "mode", "svg");
 		
 		// Parameters for the XSLT transformation from RDF to DOT
-		language = (String) request.getSession().getAttribute("language");
-		if (language == null)
-			language = (String) request.getParameter("language");
-		namespaces = (String) request.getSession().getAttribute("namespaces");
-		if (namespaces == null)
-			namespaces = (String) request.getParameter("namespaces");
+		language = getInput(request, "language");
+		namespaces = getInput(request, "namespaces");
 		
-		// Override default maximum input size
-		String sMaxSize = (String) request.getSession().getAttribute("maxsize");
-		if (sMaxSize == null)
-			sMaxSize = (String) request.getParameter("maxsize");		
-		int maxSize = MAX_INPUT_SIZE;
-		if	(sMaxSize != null) 
-			try { maxSize = Integer.parseInt(sMaxSize); }
-			catch (NumberFormatException e) {}
-		
+		// Set maximum input size
+        maxSize  = Integer.parseInt(getInput(request, "maxsize", MAX_INPUT_SIZE));
+
 		// Define default line length for text nodes and also the maximum length
-		String sLineLength = (String) request.getSession().getAttribute("length");
-		if (sLineLength == null)
-			sLineLength = (String) request.getParameter("length");		
-		int lineLength = defaultLineLength;
-		if	(sLineLength != null) 
-			try { lineLength = Integer.parseInt(sLineLength); }
-			catch (NumberFormatException e) {}
-		String sMaxLineLength = (String) request.getSession().getAttribute("maxlength");
-		if (sMaxLineLength == null)
-			sMaxLineLength = (String) request.getParameter("maxlength");
-		int maxLineLength = defaultMaxLineLength;
-		if	(sMaxLineLength != null) 
-			try 
-			{ 
-				maxLineLength = Integer.parseInt(sMaxLineLength);
-				if (maxLineLength < lineLength)
+        lineLength  = Integer.parseInt(getInput(request, "length", defaultLineLength));
+        maxLineLength  = Integer.parseInt(getInput(request, "maxlength", defaultMaxLineLength));
+        if (maxLineLength < lineLength)
 					maxLineLength = lineLength;
-			}
-			catch (NumberFormatException e) {}
-		
+
 		Model data = ModelFactory.createDefaultModel();
 		data.setNsPrefixes(DefaultNSPrefixes.map);
         try
@@ -170,7 +142,7 @@ public class RenderRDF extends HttpServlet
         
 		try
 		{
-			Model graph = runInference(data, new URL(request.getParameter("rules")), lineLength, maxLineLength);
+			Model graph = runInference(data, new URL(rules), lineLength, maxLineLength);
 			
 			String base = this.getServletContext().getRealPath("/");
 			Source xslSource = new StreamSource(new File(base+"/xsl/rdf2dot.xsl"));
@@ -218,10 +190,12 @@ public class RenderRDF extends HttpServlet
 		        		else
 		        			continue;
 		        	}
-		        	else
-		        		//Solve problem with font-size, measure "px" not specified, added
-		        		line = line.replaceAll("font-size:([\\d.]+);", "font-size:$1px;");
-		            out.write(line+"\n");
+		        	else {
+                        //Solve problem with font-size, measure "px" not specified, added
+                        line = line.replaceAll("font-size:([\\d.]+);", "font-size:$1px;");
+                        line = line.replaceAll("xlink:href=\"(.+)\"", "xlink:href=\""+request.getRequestURL()+"?rdf=$1\"");
+                    }
+		            out.write(line + "\n");
 		        }
 	        
 	        out.flush();
@@ -232,8 +206,21 @@ public class RenderRDF extends HttpServlet
 			throw new ServletException(e);
 		}
 	}
-	
-	private Model runInference(Model data, URL rules, int lineLength, int maxLineLength) throws IOException
+
+    private String getInput(HttpServletRequest request, String paramOrAttr) {
+        return getInput(request, paramOrAttr, null);
+    }
+
+    private String getInput(HttpServletRequest request, String paramOrAttr, String defaultInput) {
+        String input = (String)request.getSession().getAttribute(paramOrAttr);
+        if (input==null)
+            input = request.getParameter(paramOrAttr);
+        if (input==null)
+            input = defaultInput;
+        return input;
+    }
+
+    private Model runInference(Model data, URL rules, int lineLength, int maxLineLength) throws IOException
 	{	
 		Reasoner reasoner = new GenericRuleReasoner(Rule.rulesFromURL(rules.toString()));
 		InfModel inf = ModelFactory.createInfModel(reasoner, data);
