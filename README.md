@@ -33,7 +33,7 @@ to the appropriate executable (for instance **/usr/local/bin/dot** or **C:\\Prog
 
 When deployed in a local servlet container like Tomcat, the RDF2SVG service will be available at something like: **http://localhost:8080/rdf2svg/render**
 
-(The service is deployed at **rhizomik.net/redefer-services/render** and it can be tested from [http://rhizomik.net/redefer/rdf2svg-form/]())
+(The service is deployed at **rhizomik.net/redefer-services/render** and it can be tested from [http://rhizomik.net/redefer/rdf2svg-form/](http://rhizomik.net/redefer/rdf2svg-form/))
 
 It can called using **GET** or **POST**. The former is recommended when the RDF to be transformed is available from a URL, the latter when direct input is provided.
 
