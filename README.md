@@ -54,14 +54,14 @@ Examples using GET and the RDF2SVG service deployed at **rhizomik.net/redefer-se
 *   **Show a RDF graph**:
     
     [http://rhizomik.net/redefer-services/render?rdf=http://rhizomik.net/html/ontologies/mpeg7ontos/examples/descriptionExample002.rdf&format=RDF/XML&mode=svg&rules=http://rhizomik.net/html/redefer/rdf2svg/showgraph.jrule]
-    (http://rhizomik.net/redefer-services/render?rdf=http://rhizomik.net:8080/html/ontologies/mpeg7ontos/examples/descriptionExample002.rdf&format=RDF/XML&mode=svg&rules=http://rhizomik.net:8080/html/redefer/rdf2svg/showgraph.jrule)
+    (http://rhizomik.net/redefer-services/render?rdf=http://rhizomik.net/html/ontologies/mpeg7ontos/examples/descriptionExample002.rdf&format=RDF/XML&mode=svg&rules=http://rhizomik.net/html/redefer/rdf2svg/showgraph.jrule)
 
 *   **Show the class hierarchy in an ontology**:
     
     [http://rhizomik.net/redefer-services/render?rdf=https://raw.github.com/structureddynamics/Bibliographic-Ontology-BIBO/1.3/bibo.xml.owl&format=RDF/XML&mode=svg&rules=http://rhizomik.net/html/redefer/rdf2svg/showclasshierarchy.jrule]
-    (http://rhizomik.net/redefer-services/render?rdf=https://raw.github.com/structureddynamics/Bibliographic-Ontology-BIBO/1.3/bibo.xml.owl&format=RDF/XML&mode=svg&rules=http://rhizomik.net:8080/html/redefer/rdf2svg/showclasshierarchy.jrule)
+    (http://rhizomik.net/redefer-services/render?rdf=https://raw.github.com/structureddynamics/Bibliographic-Ontology-BIBO/1.3/bibo.xml.owl&format=RDF/XML&mode=svg&rules=http://rhizomik.net/html/redefer/rdf2svg/showclasshierarchy.jrule)
     
 *   **Show ontology**:
     
     [http://rhizomik.net/redefer-services/render?rdf=http://rhizomik.net/ontologies/2009/09/copyrightonto.owl&format=RDF/XML&mode=svg&rules=http://rhizomik.net/html/redefer/rdf2svg/showontology.jrule]
-    (http://rhizomik.net/redefer-services/render?rdf=http://rhizomik.net:8080/ontologies/2009/09/copyrightonto.owl&format=RDF/XML&mode=svg&rules=http://rhizomik.net:8080/html/redefer/rdf2svg/showontology.jrule)
+    (http://rhizomik.net/redefer-services/render?rdf=http://rhizomik.net/ontologies/2009/09/copyrightonto.owl&format=RDF/XML&mode=svg&rules=http://rhizomik.net/html/redefer/rdf2svg/showontology.jrule)
