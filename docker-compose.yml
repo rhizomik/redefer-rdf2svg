@@ -1,0 +1,10 @@
+version: '3'
+services:
+  redefer-rdf2svg:
+    image: rhizomik/redefer-rdf2svg
+    container_name: redefer-rdf2svg
+    ports:
+      - "8080:8080"
+    environment:
+      - NET_RHIZOMIK_REDEFER_RDF2SVG_DOTPATH=/usr/bin/dot
+      - JAVA_OPTS=-Xmx512m -Xms128m
