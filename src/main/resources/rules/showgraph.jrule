@@ -1,0 +1,69 @@
+@prefix gv: <http://rhizomik.net/ontologies/2008/05/gv.rdfs#>.
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>.
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>.
+@prefix owl: <http://www.w3.org/2002/07/owl#>.
+@prefix schema: <http://schema.org/> .
+@prefix dct: <http://purl.org/dc/terms/> .
+
+[init:
+   -> (gv:graph rdf:type gv:Graph), (gv:graph gv:rankdir "LR"), (gv:graph gv:nodesep "0.2"),
+      (gv:graph gv:ranksep "0.2"), (gv:graph gv:center "true"),
+      (gv:graph gv:overlap "false"), (gv:graph gv:splines "true")
+]
+
+[nodesAndEdges:
+  (?s ?p ?o), strConcat(?p, ?puri), notLiteral(?o)
+  strNotContains(?puri, "http://rhizomik.net/ontologies/2008/05/gv.rdfs"),
+  strNotContains(?puri, "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"),
+  strNotContains(?puri, "http://www.w3.org/2000/01/rdf-schema#label")
+-> 
+  (gv:graph gv:hasEdgeProperty ?p), (gv:graph gv:hasNode ?s), (gv:graph gv:hasNode ?o), 
+  (?p rdf:type gv:EdgeProperty), (?s gv:fontsize "10"), (?o gv:fontsize "10"),
+  (?p gv:fontsize "8"), (?p gv:color "blue")
+]
+
+[nodesAndAttributes:
+  (?s ?p ?o), strConcat(?p, ?puri), isLiteral(?o)
+  strNotContains(?puri, "http://rhizomik.net/ontologies/2008/05/gv.rdfs"),
+  strNotContains(?puri, "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"),
+  strNotContains(?puri, "http://www.w3.org/2000/01/rdf-schema#label")
+->
+  (gv:graph gv:hasAttribute ?p), (gv:graph gv:hasNode ?s), (gv:graph gv:hasAttributeValue ?o),
+  (?p rdf:type gv:Attribute), (?s gv:fontsize "10")
+]
+
+[idResource:
+  (gv:graph gv:hasNode ?node), notBNode(?node), strConcat(?node, ?uri)
+->
+  (?node gv:shape "plaintext")
+]
+
+[labelledResource:
+  (gv:graph gv:hasNode ?node), notBNode(?node), (?node rdfs:label ?label)
+->
+  (?node gv:label ?label)
+]
+
+[namedResource:
+  (gv:graph gv:hasNode ?node), notBNode(?node), (?node schema:name ?label)
+->
+  (?node gv:label ?label)
+]
+
+[titledResource:
+  (gv:graph gv:hasNode ?node), notBNode(?node), (?node dct:title ?label)
+->
+  (?node gv:label ?label)
+]
+
+[anonResource:
+  (gv:graph gv:hasNode ?node), isBNode(?node)
+->
+  (?node gv:shape "plaintext")
+]
+
+[typedResource:
+  (gv:graph gv:hasNode ?node), (?node rdf:type ?class), strConcat(?class, ?curi)
+->
+  (?node gv:classLabel ?curi)
+]

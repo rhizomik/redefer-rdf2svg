@@ -5,15 +5,12 @@
 	xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" 
 	xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
 	xmlns:gv="http://rhizomik.net/ontologies/2008/05/gv.rdfs#">
-	
-	<xsl:param name="Debug" select="0"/>
-	
+
 	<xsl:output method="text" media-type="text/plain" encoding="UTF-8" indent="yes"/>
 	
 	<xsl:param name="GVns" select='"http://rhizomik.net/ontologies/2008/05/gv.rdfs#"'/>
-	<xsl:param name="language"></xsl:param>
-	<xsl:param name="namespaces">true</xsl:param>
-	
+	<xsl:param name="language">en</xsl:param>
+
 	<xsl:template match="/rdf:RDF">
 		<xsl:for-each select="*[@rdf:about='http://rhizomik.net/ontologies/2008/05/gv.rdfs#graph']">
 			<xsl:variable name="it" select="."/>
@@ -23,6 +20,7 @@
 			</xsl:call-template>
 		</xsl:for-each>
 	</xsl:template>
+
 	<xsl:template name="eachGraph">
 		<xsl:param name="it"/>
 		<xsl:param name="cluster"/>
@@ -75,17 +73,6 @@
 				</xsl:call-template>
 			</xsl:if>
 		</xsl:for-each>
-		<xsl:for-each select="$it/gv:hasNode[not(@rdf:resource) and not(@rdf:nodeID)]">
-			<xsl:variable name="isPreferredLanguage">
-					<xsl:call-template name="isPreferredLanguage"/>
-			</xsl:variable>
-			<xsl:if test="$isPreferredLanguage='true'">
-				<xsl:call-template name="eachLiteral">
-					<xsl:with-param name="nodeValue" select="normalize-space(.)"/>
-					<xsl:with-param name="datatype" select="@rdf:datatype"/>
-				</xsl:call-template>
-			</xsl:if>
-		</xsl:for-each>
 		<xsl:for-each select="$it/gv:subgraph/@rdf:resource">
 			<xsl:variable name="it2" select="/rdf:RDF/*[@rdf:about=current()]"/>
 			<xsl:text>subgraph </xsl:text>
@@ -97,56 +84,12 @@
 		<xsl:text>}</xsl:text>
 	</xsl:template>
 
-	<xsl:template name="eachLiteral">
-		<xsl:param name="nodeValue"/>
-		<xsl:param name="datatype"/>
-		<xsl:variable name="value">
-			<xsl:call-template name="replace-string">
-				<xsl:with-param name="text" select="$nodeValue"/>
-				<xsl:with-param name="replace" select="'&quot;'"/>
-				<xsl:with-param name="with" select="'&amp;quot;'"/>
-			</xsl:call-template>
-		</xsl:variable>
-		<xsl:text>"&amp;quot;</xsl:text>
-		<xsl:value-of select="$value"/>
-		<xsl:text>&amp;quot;" [</xsl:text>
-		<!-- node attributes -->
-		<xsl:for-each select='/rdf:RDF/*[@rdf:about="urn:literals"]/*[namespace-uri() = $GVns and (
-			      local-name() = "color"
-				or local-name() = "shape"
-				or local-name() = "style"
-				or local-name() = "fontcolor"
-				or local-name() = "fontname"
-				or local-name() = "fontsize"
-				or local-name() = "height"
-				or local-name() = "width"
-				or local-name() = "layer"
-				or local-name() = "URL"
-				or local-name() = "sides"
-				or local-name() = "shapefile")
-				]'>
-			<!-- "URL" not in the original file format docs, but seems to be supported; cf http://www.graphviz.org/webdot/tut2.html-->
-			<xsl:value-of select="local-name()"/>
-			<xsl:text>="</xsl:text>
-			<xsl:value-of select="normalize-space(.)"/>
-			<xsl:text>",</xsl:text>	
-		</xsl:for-each>
-		
-		<xsl:text>label="&amp;quot;</xsl:text>
-		<xsl:value-of select="$value"/>
-		<xsl:text>&amp;quot;</xsl:text>
-		<xsl:if test="$datatype">
-			<xsl:text>^^</xsl:text>
-			<xsl:value-of select="$datatype"/>
-		</xsl:if>
-		<xsl:text>"];</xsl:text>
-	</xsl:template>
-
 	<xsl:template name="eachNode">
 		<xsl:param name="graphElt"/>
 		<xsl:param name="nodeElt"/>
 		<xsl:param name="nodeURI"/>
-		<xsl:text>"</xsl:text>
+		<xsl:text>
+	"</xsl:text>
 		<xsl:value-of select="$nodeURI"/>
 		<xsl:text>" [</xsl:text>
 		<!-- node attributes -->
@@ -173,37 +116,87 @@
 		
 		<!-- Combine multiple classLabels and label. If label empty put " " in order to avoid DOT displays node id -->
 		<!--xsl:if test='$nodeElt/*[namespace-uri() = $GVns and (local-name() = "classLabel" or local-name() = "label")]'-->
-			<xsl:text>label="</xsl:text>
+			<xsl:text>label=</xsl:text><xsl:value-of select="$node-type"/>
+				<xsl:choose>
+					<xsl:when test="$nodeElt/@rdf:about">
+						<xsl:value-of select="$node-uri"/>
+						<xsl:call-template name="getLabel">
+							<xsl:with-param name="uri" select="$nodeElt/@rdf:about"/>
+							<xsl:with-param name="property" select="''"/>
+						</xsl:call-template>
+						<xsl:value-of select="$node-uri-end"/>
+					</xsl:when>
+					<xsl:when test="$nodeElt/@rdf:nodeID">
+						<xsl:text> </xsl:text>
+					</xsl:when>
+					<xsl:otherwise>
+						<xsl:value-of select="."/>
+					</xsl:otherwise>
+				</xsl:choose>
+			<xsl:if test='$nodeElt/*[namespace-uri() = $GVns and local-name() = "classLabel"]'>
+				<xsl:value-of select="$node-type-sep"/>
+			</xsl:if>
 			<xsl:for-each select="$nodeElt/*[namespace-uri() = $GVns and  local-name() = 'classLabel']">
 				<xsl:call-template name="getLabel">
 					<xsl:with-param name="uri" select="."/>
 					<xsl:with-param name="property" select="''"/>
 				</xsl:call-template>
-				<xsl:if test="position() = last()-1"><xsl:text>, </xsl:text></xsl:if>
+				<xsl:if test="position() != last()"><xsl:text>, </xsl:text></xsl:if>
+				<xsl:if test="position() mod 4 = 3">&lt;BR/&gt;</xsl:if>
 			</xsl:for-each>
-			<xsl:if test='$nodeElt/*[namespace-uri() = $GVns and local-name() = "classLabel"]'>
-				<xsl:text>:\n</xsl:text>
-			</xsl:if>
-			<xsl:choose>
-				<xsl:when test="$nodeElt/@rdf:about">
-					<xsl:call-template name="getLabel">
-						<xsl:with-param name="uri" select="$nodeElt/@rdf:about"/>
-						<xsl:with-param name="property" select="$nodeElt"/>
-					</xsl:call-template>
-				</xsl:when>
-				<xsl:when test="$nodeElt/@rdf:nodeID">
-					<xsl:text> </xsl:text>
-				</xsl:when>
-				<xsl:otherwise>
-					<xsl:value-of select="."/>
-				</xsl:otherwise>
-			</xsl:choose>			
-			<xsl:text>",</xsl:text>
+			<xsl:value-of select="$node-type-end"/>
+
+			<!-- attributes -->
+			<xsl:value-of select="$node-attrs"/>
+			<xsl:for-each select="$nodeElt/*[not(@rdf:resource) and not(@rdf:nodeID)]">
+				<!-- iterate over all attributes of the default or preferred language-->
+				<xsl:variable name="isPreferredLanguage">
+					<xsl:call-template name="isPreferredLanguage"/>
+				</xsl:variable>
+				<xsl:if test="$isPreferredLanguage='true'">
+					<xsl:variable name="obj">
+						<xsl:call-template name="replace-string">
+							<xsl:with-param name="text" select="normalize-space(.)"/>
+							<xsl:with-param name="replace" select="'&quot;'"/>
+							<xsl:with-param name="with" select="'&amp;quot;'"/>
+						</xsl:call-template>
+					</xsl:variable>
+					<xsl:variable name="pred" select="concat(namespace-uri(),  local-name())"/>
+					<xsl:choose>
+						<xsl:when test="$graphElt/gv:hasAttribute/@rdf:resource=$pred">
+							<xsl:call-template name="doAttribute">
+								<xsl:with-param name="nodeURI" select="$nodeURI"/>
+								<xsl:with-param name="pred" select="$pred"/>
+								<xsl:with-param name="obj" select="$obj"/>
+								<xsl:with-param name="edgeElt" select="/rdf:RDF/*[@rdf:about=$pred]"/>
+							</xsl:call-template>
+						</xsl:when>
+						<xsl:when test="/rdf:RDF/gv:Attribute[@rdf:about=$pred]">
+							<xsl:call-template name="doAttribute">
+								<xsl:with-param name="nodeURI" select="$nodeURI"/>
+								<xsl:with-param name="pred" select="$pred"/>
+								<xsl:with-param name="obj" select="$obj"/>
+								<xsl:with-param name="edgeElt" select="/rdf:RDF/*[@rdf:about=$pred]"/>
+							</xsl:call-template>
+						</xsl:when>
+						<xsl:when test='/rdf:RDF/*[@rdf:about=$pred]/rdf:type[@rdf:resource=concat($GVns, "Attribute")]'>
+							<xsl:call-template name="doAttribute">
+								<xsl:with-param name="nodeURI" select="$nodeURI"/>
+								<xsl:with-param name="pred" select="$pred"/>
+								<xsl:with-param name="obj" select="$obj"/>
+								<xsl:with-param name="edgeElt" select="/rdf:RDF/*[@rdf:about=$pred]"/>
+							</xsl:call-template>
+						</xsl:when>
+					</xsl:choose>
+				</xsl:if>
+			</xsl:for-each>
+			<xsl:value-of select="$node-attrs-end"/>
+			<xsl:text>,</xsl:text>
 		<!--/xsl:if-->		
 		<xsl:text>];</xsl:text>
 		
 		<!-- edges -->
-		<xsl:for-each select="$nodeElt/*">
+		<xsl:for-each select="$nodeElt/*[@rdf:resource or @rdf:nodeID]">
 			<!-- iterate over all properties of the default or preferred language-->
 			<xsl:variable name="isPreferredLanguage">
 				<xsl:call-template name="isPreferredLanguage"/>
@@ -229,9 +222,6 @@
 					</xsl:choose>
 				</xsl:variable>
 				<xsl:variable name="pred" select="concat(namespace-uri(),  local-name())"/>
-				<xsl:if test="$Debug>4">
-					<xsl:message>propertyElt in nodeElt:subj: <xsl:value-of select="$nodeURI"/>  pred: <xsl:value-of select="$pred"/></xsl:message>
-				</xsl:if>
 				<xsl:choose>
 					<xsl:when test="$graphElt/gv:hasEdgeProperty/@rdf:resource=$pred">
 						<xsl:call-template name="doEdge">
@@ -261,12 +251,29 @@
 			</xsl:if>
 		</xsl:for-each>
 	</xsl:template>
+
+	<xsl:template name="doAttribute">
+		<xsl:param name="nodeURI"/>
+		<xsl:param name="pred"/>
+		<xsl:param name="obj"/>
+		<xsl:param name="edgeElt"/>
+		<xsl:value-of select="$node-attr"/>
+		<xsl:call-template name="getLabel">
+			<xsl:with-param name="uri" select="$pred"/>
+			<xsl:with-param name="property" select="''"/>
+		</xsl:call-template>
+		<xsl:value-of select="$node-attr-sep"/>
+		<xsl:value-of select="$obj"/>
+		<xsl:value-of select="$node-attr-end"/>
+	</xsl:template>
+
 	<xsl:template name="doEdge">
 		<xsl:param name="nodeURI"/>
 		<xsl:param name="pred"/>
 		<xsl:param name="obj"/>
 		<xsl:param name="edgeElt"/>
-		<xsl:text>"</xsl:text>
+		<xsl:text>
+	"</xsl:text>
 		<xsl:value-of select="$nodeURI"/>
 		<xsl:text>" -&gt; "</xsl:text>
 		<xsl:value-of select="$obj"/>
@@ -284,11 +291,9 @@
 			          or local-name() = "style"
 			          or local-name() = "weight"
 				  ]'>
-			<!--@@ ...others-->
 			<xsl:value-of select="local-name()"/>
 			<xsl:text>="</xsl:text>
 			<xsl:value-of select="normalize-space(.)"/>
-			<!-- @@quoting? -->
 			<xsl:text>",</xsl:text>
 		</xsl:for-each>
 		<xsl:text>label="</xsl:text>
@@ -297,9 +302,9 @@
 			<xsl:with-param name="property" select="''"/>
 		</xsl:call-template>
 		<xsl:text>",</xsl:text>
-		<xsl:text>];
-</xsl:text>
+		<xsl:text>];</xsl:text>
 	</xsl:template>
+
 	<!-- don't pass text thru -->
 	<xsl:template match="text()|@*">
 </xsl:template>
@@ -345,40 +350,34 @@
 			<xsl:call-template name="get-name">
 				<xsl:with-param name="uri" select="$uri"/>
 			</xsl:call-template>
-		</xsl:variable>		
+		</xsl:variable>
 		<xsl:choose>
-			<xsl:when test="$language='' and //*[@rdf:about=$uri]/rdfs:label">
+			<xsl:when test="$language='' and //*[@rdf:about=$uri]/gv:label">
 				<xsl:call-template name="buildList">
-					<xsl:with-param name="elements" select="//*[@rdf:about=$uri]/rdfs:label"/>
+					<xsl:with-param name="elements" select="//*[@rdf:about=$uri]/gv:label"/>
 				</xsl:call-template>
 			</xsl:when>
-			<xsl:when test="//*[@rdf:about=$uri]/rdfs:label[contains(@xml:lang,$language)]">
-				<xsl:value-of select="//*[@rdf:about=$uri]/rdfs:label[contains(@xml:lang,$language)]"/>
+			<xsl:when test="//*[@rdf:about=$uri]/gv:label[contains(@xml:lang,$language)]">
+				<xsl:value-of select="//*[@rdf:about=$uri]/gv:label[contains(@xml:lang,$language)]"/>
 			</xsl:when>
-			<xsl:when test="//*[@rdf:about=$uri]/rdfs:label[contains(@xml:lang,'en')]">
-				<xsl:value-of select="//*[@rdf:about=$uri]/rdfs:label[contains(@xml:lang,'en')]"/>
+			<xsl:when test="//*[@rdf:about=$uri]/gv:label[contains(@xml:lang,'en')]">
+				<xsl:value-of select="//*[@rdf:about=$uri]/gv:label[contains(@xml:lang,'en')]"/>
 			</xsl:when>
-			<xsl:when test="//*[@rdf:about=$uri]/rdfs:label[not(@xml:lang)]">
-				<xsl:value-of select="//*[@rdf:about=$uri]/rdfs:label[not(@xml:lang)]"/>
+			<xsl:when test="//*[@rdf:about=$uri]/gv:label[not(@xml:lang)]">
+				<xsl:value-of select="//*[@rdf:about=$uri]/gv:label[not(@xml:lang)]"/>
 			</xsl:when>
-			<xsl:when test="$namespaces='true' and namespace::*[.=$namespace and name()!='']">
+			<xsl:when test="../namespace::*[.=$namespace and name()!='']">
 				<xsl:variable name="namespaceAlias">
-					<xsl:value-of select="name(namespace::*[.=$namespace and name()!=''])"/>
+					<xsl:value-of select="name(../namespace::*[.=$namespace and name()!=''])"/>
 				</xsl:variable>
 				<xsl:value-of select="concat(concat($namespaceAlias,':'),$localname)"/>
 			</xsl:when>
-			<xsl:when test="$namespaces='false'">
-				<xsl:value-of select="$localname"/>
-			</xsl:when>
 			<xsl:otherwise>
 				<xsl:choose>
-					<xsl:when test="$namespaces='true' and $namespace = namespace::*[name()='']">
+					<xsl:when test="$namespace = ../namespace::*[name()='']">
 						<xsl:value-of select="concat(':',$localname)"/>
 					</xsl:when>
-					<xsl:when test="$namespaces='false' and $namespace = namespace::*[name()='']">
-						<xsl:value-of select="$localname"/>
-					</xsl:when>
-					<xsl:when test="$property = '' or $property = 'type'">
+					<xsl:when test="$property = 'type'">
 						<xsl:value-of select="$localname"/>
 					</xsl:when>
 					<xsl:otherwise>
@@ -502,5 +501,25 @@
 			</xsl:otherwise>
 		</xsl:choose>
 	</xsl:template>
+
+	<xsl:variable name="node-type">&lt;&lt;TABLE BORDER=&quot;0&quot; CELLBORDER=&quot;1&quot; CELLSPACING=&quot;0&quot;&gt;&lt;TR&gt;&lt;TD&gt;&lt;TABLE BORDER=&quot;0&quot; CELLBORDER=&quot;0&quot; CELLSPACING=&quot;5&quot; BGCOLOR=&quot;lightgray&quot;&gt;&lt;TR&gt;&lt;TD&gt;</xsl:variable>
+
+	<xsl:variable name="node-uri">&lt;FONT COLOR=&quot;blue&quot;&gt;</xsl:variable>
+
+	<xsl:variable name="node-uri-end">&lt;/FONT&gt;</xsl:variable>
+
+	<xsl:variable name="node-type-sep">&lt;/TD>&lt;TD&gt;</xsl:variable>
+
+	<xsl:variable name="node-type-end">&lt;/TD&gt;&lt;/TR&gt;&lt;/TABLE&gt;&lt;/TD&gt;&lt;/TR&gt;</xsl:variable>
+
+	<xsl:variable name="node-attrs">&lt;TR&gt;&lt;TD&gt;&lt;TABLE BORDER=&quot;0&quot; CELLBORDER=&quot;0&quot; CELLSPACING=&quot;5&quot;&gt;&lt;TR&gt;&lt;TD&gt;&lt;/TD&gt;&lt;/TR&gt;</xsl:variable>
+
+	<xsl:variable name="node-attr">&lt;TR&gt;&lt;TD ALIGN=&quot;LEFT&quot;&gt;&lt;FONT COLOR=&quot;dimgrey&quot;&gt;</xsl:variable>
+
+	<xsl:variable name="node-attr-sep">&lt;/FONT&gt;&lt;/TD&gt;&lt;TD ALIGN=&quot;LEFT&quot;&gt;</xsl:variable>
+
+	<xsl:variable name="node-attr-end">&lt;/TD&gt;&lt;/TR&gt;</xsl:variable>
+
+	<xsl:variable name="node-attrs-end">&lt;/TABLE&gt;&lt;/TD&gt;&lt;/TR&gt;&lt;/TABLE&gt;&gt;</xsl:variable>
 
 </xsl:transform>

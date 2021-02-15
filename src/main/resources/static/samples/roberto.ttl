@@ -1,0 +1,29 @@
+@prefix core: <http://vivoweb.org/ontology/core#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix schema: <http://schema.org/> .
+
+<https://rhizomik.net/~roberto> a core:FacultyMember ;
+   rdfs:label "Roberto García" ;
+   schema:address [ a schema:PostalAddress ;
+                    schema:addressCountry "Spain" ;
+                    schema:addressLocality "Lleida" ;
+                    schema:postalCode "E-25001" ;
+                    schema:streetAddress "Jaume II, 69" ] ;
+   schema:affiliation <http://dbpedia.org/resource/University_of_Lleida> ;
+   schema:email "mailto:roberto@rhizomik.net" ;
+   schema:familyName "García González" ;
+   schema:givenName "Roberto" ;
+   schema:name "Roberto García" ;
+   schema:telephone "tel:+34-973-702-742" ;
+   schema:url "https://rhizomik.net/~roberto" ;
+   core:hasResearchArea <http://dbpedia.org/resource/Affective_computing>,
+   <http://dbpedia.org/resource/Blockchain_(database)>,
+   <http://dbpedia.org/resource/Copyright>,
+   <http://dbpedia.org/resource/E-learning>,
+   <http://dbpedia.org/resource/Human–computer_interaction>,
+   <http://dbpedia.org/resource/Information_architecture>,
+   <http://dbpedia.org/resource/Ontology_(information_science)>,
+   <http://dbpedia.org/resource/Semantic_Web> ;
+   core:relatedBy <https://rhizomik.net/positions/~roberto> ;
+   foaf:depiction <https://rhizomik.net/html/~roberto/images/Roberto_b.jpg> .

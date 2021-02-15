@@ -1,0 +1,8 @@
+net:
+  rhizomik:
+    redefer:
+      rdf2svg:
+        defaultLineLength: 50
+        defaultMaxLineLength: 80
+        rules: rules/showgraph.jrule
+        dotPath: /usr/bin/dot

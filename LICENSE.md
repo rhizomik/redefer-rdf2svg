@@ -1,6 +1,6 @@
 ReDeFer RDF2SVG
 ===============
-Copyright (C) 2014  Roberto García (http://rhizomik.net/~roberto/)
+Copyright (C) 2021  Roberto García (http://rhizomik.net/~roberto/)
 if not stated otherwise. Some files might have their own copyright 
 statement.
 

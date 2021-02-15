@@ -1,11 +1,11 @@
 package net.rhizomik.jena.builtin;
 
-import com.hp.hpl.jena.graph.Node;
-import com.hp.hpl.jena.reasoner.rulesys.BuiltinException;
-import com.hp.hpl.jena.reasoner.rulesys.RuleContext;
-import com.hp.hpl.jena.reasoner.rulesys.builtins.BaseBuiltin;
+import org.apache.jena.graph.Node;
+import org.apache.jena.reasoner.rulesys.BuiltinException;
+import org.apache.jena.reasoner.rulesys.RuleContext;
+import org.apache.jena.reasoner.rulesys.builtins.BaseBuiltin;
 
-public class StrContains extends BaseBuiltin 
+public class StrContains extends BaseBuiltin
 {
 	public String getName() 
 	{
