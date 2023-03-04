@@ -1,5 +1,6 @@
 package net.rhizomik.redefer.rdf2svg;
 
+import com.apicatalog.jsonld.JsonLdError;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -16,7 +17,7 @@ public class RDF2SVGService {
 
 	@Autowired RDF2DotService rdf2Dot;
 
-	public String RDFtoSVG(String rdf, String format) throws IOException, TransformerException {
+	public String RDFtoSVG(String rdf, String format) throws IOException, TransformerException, JsonLdError {
 		String dot = rdf2Dot.RDFtoDot(rdf, format);
 
 		Runtime rt = Runtime.getRuntime();
