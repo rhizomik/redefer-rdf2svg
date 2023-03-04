@@ -39,7 +39,7 @@
     <div class="panel panel-default">
         <div class="panel-heading">
             <h3 class="panel-title">Render RDF URL as SVG</h3>
-            <h5 style="font-family: consolas">GET /render?url=URL</h5>
+            <h6 style="font-family: monospace">GET /render?url=URL</h6>
         </div>
         <div class="panel-body">
             <div class="col-sm-12">
@@ -67,14 +67,14 @@
                         <li><a id="mpeg7.rdf" href="https://rhizomik.net/html/ontologies/mpeg7ontos/examples/descriptionExample002.rdf"
                                onclick="document.renderURL.url.value=document.getElementById('mpeg7.rdf').href; return false">
                             mpeg7.rdf</a></li>
-                        <li><a id="foaf.rdf" href="http://dig.csail.mit.edu/2008/webdav/timbl/foaf.rdf"
-                               onclick="document.renderURL.url.value=document.getElementById('foaf.rdf').href; return false">
-                            foaf.rdf</a></li>
+                        <li><a id="ACME-SCS-Openstack.jsonld" href="https://gitlab.com/gaia-x/data-infrastructure-federation-services/deployment-scenario/schema-provider/-/raw/develop/implementation/wip/instances/service-offering/ACME-SCS-Openstack.jsonld"
+                               onclick="document.renderURL.url.value=document.getElementById('ACME-SCS-Openstack.jsonld').href; return false">
+                            ACME-SCS-Openstack.jsonld</a></li>
                     </ul>
                 </div>
                 <div class="col-sm-4">
                     <ul>
-                        <li><a id="test.nt" href="http://www.w3.org/2000/10/rdf-tests/rdfcore/ntriples/test.nt"
+                        <li><a id="test.nt" href="https://www.w3.org/2000/10/rdf-tests/rdfcore/ntriples/test.nt"
                                onclick="document.renderURL.url.value=document.getElementById('test.nt').href; return false">
                             test.nt</a></li>
                         <li><a id="roberto.ttl" href="samples/roberto.ttl"
@@ -98,7 +98,7 @@
     <div class="panel panel-default">
         <div class="panel-heading">
             <h3 class="panel-title">Map RDF to SVG</h3>
-            <h5 style="font-family: consolas">POST /render <br>Content-Type: text/turtle | application/rdf+xml | application/n-triples </h5>
+            <h6 style="font-family: monospace">POST /render <br>Content-Type: text/turtle | application/rdf+xml | application/n-triples | application/ld+json </h6>
         </div>
         <div class="panel-body">
             <div class="col-sm-12">
@@ -108,6 +108,7 @@
                             <option selected value="TURTLE">Turtle (.ttl)</option>
                             <option value="RDF/XML">RDF/XML (.rdf)</option>
                             <option value="N-TRIPLES">N-Triples (.nt)</option>
+                            <option value="JSON-LD">JSON-LD (.jsonld)</option>
                         </select>
                     </div>
                     <div class="form-group row">

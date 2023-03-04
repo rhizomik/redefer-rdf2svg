@@ -1,5 +1,10 @@
 package net.rhizomik.redefer.rdf2svg;
 
+import com.apicatalog.jsonld.JsonLd;
+import com.apicatalog.jsonld.JsonLdError;
+import com.apicatalog.jsonld.document.Document;
+import com.apicatalog.jsonld.document.JsonDocument;
+import com.apicatalog.rdf.io.nquad.NQuadsWriter;
 import net.rhizomik.jena.builtin.StrContains;
 import net.rhizomik.jena.builtin.StrNotContains;
 import org.apache.commons.io.IOUtils;
@@ -51,23 +56,40 @@ public class RDF2DotService {
 		BuiltinRegistry.theRegistry.register(new StrNotContains());
 	}
 
-	public String RDFtoDot(String rdf, String format) throws IOException, TransformerException {
-		Model model = ModelFactory.createDefaultModel();
-		try {
-			model.read(new URL(rdf).toString(), format);
-		} catch (MalformedURLException e) {
-			model.read(IOUtils.toInputStream(rdf, StandardCharsets.UTF_8), null, format);
-		}
-		Model graph = runInference(model, new URL(rulesUrl),
-				Integer.parseInt(defaultLineLength), Integer.parseInt(defaultMaxLineLength));
+	public String RDFtoDot(String rdf, String format) throws IOException, TransformerException, JsonLdError {
+        Model graph = format.equalsIgnoreCase("JSON-LD") ? loadJsonld(rdf) : loadRDF(rdf, format);
 		return rdfModel2dot(graph);
 	}
+
+    private Model loadJsonld(String rdf) throws JsonLdError, IOException {
+        StringWriter writer = new StringWriter();
+        try {
+            URL source = new URL(rdf);
+            Document document = JsonDocument.of(source.openStream());
+            new NQuadsWriter(writer).write(JsonLd.toRdf(document).get());
+        } catch (MalformedURLException e) {
+            Document document = JsonDocument.of(new StringReader(rdf));
+            new NQuadsWriter(writer).write(JsonLd.toRdf(document).get());
+        }
+        return loadRDF(writer.toString(), "N-TRIPLES");
+    }
+    private Model loadRDF(String rdf, String format) throws IOException {
+        Model model = ModelFactory.createDefaultModel();
+        try {
+            String urlString = new URL(rdf).toString();
+            model.read(urlString, format);
+        } catch (MalformedURLException e) {
+            model.read(IOUtils.toInputStream(rdf, StandardCharsets.UTF_8), null, format);
+        }
+        return runInference(model, new URL(rulesUrl),
+            Integer.parseInt(defaultLineLength), Integer.parseInt(defaultMaxLineLength));
+    }
 
     private Model runInference(Model data, URL rules, int lineLength, int maxLineLength) throws IOException
 	{
 		Reasoner reasoner = new GenericRuleReasoner(Rule.rulesFromURL(rules.toString()));
 		InfModel inf = ModelFactory.createInfModel(reasoner, data);
-		
+
 		// Break long literals (more than lineLength chars) using carriage returns
 		Model remove = ModelFactory.createDefaultModel();
 		Model add = ModelFactory.createDefaultModel();
@@ -78,7 +100,7 @@ public class RDF2DotService {
 			if(!s.getObject().isLiteral() || s.getPredicate().hasURI("http://rhizomik.net/ontologies/2008/05/gv.rdfs#URL"))
 				continue;
 			String l = s.getString();
-			
+
 			String lp = paginate(l, lineLength, maxLineLength);
 			if (lp.length() != l.length())
 			{
@@ -88,11 +110,11 @@ public class RDF2DotService {
 		}
 		inf.remove(remove);
 		inf.add(add);
-		
+
 		return inf;
 	}
-	
-	private String paginate(String l, int lineLength, int maxLineLength) 
+
+	private String paginate(String l, int lineLength, int maxLineLength)
 	{
 		String lf = "<BR/>";
 		if (l.length() > lineLength)
@@ -104,12 +126,12 @@ public class RDF2DotService {
 				l = l.substring(0, maxLineLength) + lf + paginate(l.substring(maxLineLength, l.length()), lineLength, maxLineLength);
 			else
 				l = l.substring(0, lineLength) + paginate(l.substring(lineLength, l.length()), lineLength, maxLineLength);
-		}	
+		}
 		return l;
 	}
 
 	private String rdfModel2dot(Model graph)
-		throws TransformerException, IOException 
+		throws TransformerException, IOException
 	{
 		Source transformation = new StreamSource(getClass().getClassLoader().getResourceAsStream("xsl/rdf2dot.xsl"));
 
@@ -117,13 +139,13 @@ public class RDF2DotService {
 
 		TransformerFactory factory = TransformerFactory.newInstance();
 		Transformer transformer = factory.newTransformer(transformation);
-		
+
 		ByteArrayOutputStream o = new ByteArrayOutputStream();
 		graph.write(o, "RDF/XML");
 		o.flush();
 
 		ByteArrayInputStream rdf = new ByteArrayInputStream(o.toByteArray());
-		
+
 		transformer.setParameter("language", language);
 		StreamSource inStream = new StreamSource(rdf);
 		StreamResult outStream = new StreamResult(result);
