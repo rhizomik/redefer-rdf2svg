@@ -50,8 +50,11 @@
                             <input type="text" name="url" id="url" class="form-control"
                                    placeholder="...pointing to RDF content">
                             <span class="input-group-btn">
-                                <button class="btn btn-default" type="submit">
+                                <button class="btn btn-default" type="submit" formaction="render">
                                     <span class="glyphicon glyphicon-cog"></span> Render as SVG
+                                </button>
+                                <button class="btn btn-default" type="submit" formaction="transform">
+                                    <span class="glyphicon glyphicon-cog"></span> Transform into DOT
                                 </button>
                             </span>
                         </div>
@@ -102,7 +105,7 @@
         </div>
         <div class="panel-body">
             <div class="col-sm-12">
-                <form action="render" method="post" id="render" name="render" enctype="multipart/form-data">
+                <form method="post" id="render" name="render" enctype="multipart/form-data">
                     <div class="form-group row">
                         <select class="form-control" name="format" id="format" rows="7" style="font-size: smaller">
                             <option selected value="TURTLE">Turtle (.ttl)</option>
@@ -117,8 +120,11 @@
                     </div>
                     <div class="form-group row" align="center">
                         <span class="input-group">
-                            <button class="btn btn-default" id="post-btn" type="submit">
+                            <button class="btn btn-default" id="post-btn-render" type="submit" formaction="render">
                                 <span class="glyphicon glyphicon-cog"></span> Render as SVG
+                            </button>
+                            <button class="btn btn-default" id="post-btn-transform" type="submit" formaction="transform">
+                                <span class="glyphicon glyphicon-cog"></span> Transform into DOT
                             </button>
                         </span>
                     </div>

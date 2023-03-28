@@ -13,7 +13,7 @@ import java.nio.charset.StandardCharsets;
 @Service
 public class RDF2SVGService {
 	@Value("${net.rhizomik.redefer.rdf2svg.dotPath}")
-	private final String dotPath = "/usr/bin/dot";
+	private String dotPath = "/usr/bin/dot";
 
 	@Autowired RDF2DotService rdf2Dot;
 
