@@ -5,6 +5,7 @@ import com.apicatalog.jsonld.JsonLdError;
 import com.apicatalog.jsonld.document.Document;
 import com.apicatalog.jsonld.document.JsonDocument;
 import com.apicatalog.rdf.io.nquad.NQuadsWriter;
+import jakarta.json.JsonValue;
 import net.rhizomik.jena.builtin.StrContains;
 import net.rhizomik.jena.builtin.StrNotContains;
 import org.apache.commons.io.IOUtils;
@@ -13,6 +14,7 @@ import org.apache.jena.reasoner.Reasoner;
 import org.apache.jena.reasoner.rulesys.BuiltinRegistry;
 import org.apache.jena.reasoner.rulesys.GenericRuleReasoner;
 import org.apache.jena.reasoner.rulesys.Rule;
+import org.apache.jena.shared.PrefixMapping;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
@@ -57,24 +59,44 @@ public class RDF2DotService {
 	}
 
 	public String RDFtoDot(String rdf, String format) throws IOException, TransformerException, JsonLdError {
-        Model graph = format.equalsIgnoreCase("JSON-LD") ? loadJsonld(rdf) : loadRDF(rdf, format);
+        Model graph = format.equalsIgnoreCase("JSON-LD") ? loadJsonld(rdf) : loadRDF(rdf, format, null);
 		return rdfModel2dot(graph);
 	}
 
     private Model loadJsonld(String rdf) throws JsonLdError, IOException {
         StringWriter writer = new StringWriter();
+        Document document;
         try {
             URL source = new URL(rdf);
-            Document document = JsonDocument.of(source.openStream());
-            new NQuadsWriter(writer).write(JsonLd.toRdf(document).get());
+            document = JsonDocument.of(source.openStream());
         } catch (MalformedURLException e) {
-            Document document = JsonDocument.of(new StringReader(rdf));
-            new NQuadsWriter(writer).write(JsonLd.toRdf(document).get());
+            document = JsonDocument.of(new StringReader(rdf));
         }
-        return loadRDF(writer.toString(), "N-TRIPLES");
+        PrefixMapping prefixes = getPrefixes(document);
+        new NQuadsWriter(writer).write(JsonLd.toRdf(document).get());
+        return loadRDF(writer.toString(), "N-TRIPLES", prefixes);
     }
-    private Model loadRDF(String rdf, String format) throws IOException {
+
+    private static PrefixMapping getPrefixes(Document document) {
+        PrefixMapping prefixes;
+        JsonValue context = document.getJsonContent().get().getValue("/@context");
+        if (context.getValueType().equals(JsonValue.ValueType.OBJECT))
+        {
+            prefixes = PrefixMapping.Factory.create();
+            context.asJsonObject().keySet().forEach(key -> {
+                if (context.asJsonObject().get(key).getValueType().equals(JsonValue.ValueType.STRING))
+                    prefixes.setNsPrefix(key, context.asJsonObject().getString(key));
+            });
+        } else {
+            prefixes = PrefixMapping.Extended;
+        }
+        return prefixes;
+    }
+
+    private Model loadRDF(String rdf, String format, PrefixMapping prefixes) throws IOException {
         Model model = ModelFactory.createDefaultModel();
+        if (prefixes != null)
+            model.setNsPrefixes(prefixes);
         try {
             String urlString = new URL(rdf).toString();
             model.read(urlString, format);
